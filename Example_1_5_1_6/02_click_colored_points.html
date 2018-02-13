@@ -6,7 +6,6 @@
         body {
             background-color: grey;
         }
-
         canvas {
             background-color: white;
         }
@@ -31,10 +30,11 @@
         glProgram = null,
         fragmentShader = null,
         vertexShader = null;
-        var vertexPositionAttribute = null,
-        cont = 0;
-        var mouseClickPoints = [],
-        mouseClickPoints = null;
+        var vertexPositionAttribute = null;
+        var fragColorAttribute = null;
+        var cont = 0;
+        var mouseClickColors = [];
+        var mouseClickPoints = [];
         function initWebGL() {
             canvas = document.getElementById("my-canvas");
             try {
@@ -87,8 +87,8 @@
         }
         function registerEventHandler() {
           vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
-          fragColorAttribute = gl.getAttribLocation(glProgram, "uFrafColor");
-          gl.enableVertexAttribArray(vertexPositionAttribute);
+          fragColorAttribute = gl.getUniformLocation(glProgram, "uFragColor");
+          // Register function (event handler) to be called on a mouse press
           canvas.onmousedown=function(ev){click(ev,gl,canvas,vertexPositionAttribute, fragColorAttribute);};
         }
         function click(ev, gl, canvas, vertexPositionAttribute) {
@@ -118,9 +118,9 @@
             // Pass the position of a point to aPosition variable:
             gl.vertexAttrib3f(vertexPositionAttribute, xy[0], xy[1], xy[2]);
             // Pass the color of a point to uFrafColor variable:
-            gl.uniform4f(location, rgba[0], rgba[1], rgba[2], rgba[3])
+            gl.uniform4f(fragColorAttribute, rgba[0], rgba[1], rgba[2], rgba[3])
             // Draw:
-            gl.drawArrays(gl.POINTS, 0, cont);
+            gl.drawArrays(gl.POINTS, 0, 1);
           }
         }
     </script>
