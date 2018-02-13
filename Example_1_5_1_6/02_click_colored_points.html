@@ -116,9 +116,9 @@
             var xy = mouseClickPoints[i];
             var rgba = mouseClickColors[i];
             // Pass the position of a point to aPosition variable:
-            gl.uniform4f(location, )
+            gl.vertexAttrib3f(vertexPositionAttribute, xy[0], xy[1], xy[2]);
             // Pass the color of a point to uFrafColor variable:
-
+            gl.uniform4f(location, rgba[0], rgba[1], rgba[2], rgba[3])
             // Draw:
             gl.drawArrays(gl.POINTS, 0, cont);
           }
