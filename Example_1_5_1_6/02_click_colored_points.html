@@ -46,7 +46,6 @@
                 setupWebGL();
                 initShaders();
                 registerEventHandler();
-                click();
             } else {
                 alert("Error: Your browser does not appear to support WebGL.");
             }
@@ -91,7 +90,7 @@
           // Register function (event handler) to be called on a mouse press
           canvas.onmousedown=function(ev){click(ev,gl,canvas,vertexPositionAttribute, fragColorAttribute);};
         }
-        function click(ev, gl, canvas, vertexPositionAttribute) {
+        function click(ev, gl, canvas, vertexPositionAttribute, fragColorAttribute) {
           var x = ev.clientX; // x coordinate of a mouse pointer
           var y = ev.clientY; // y coordinate of a mouse pointer
           var z = 0.0; // z coordinate of a mouse pointer
@@ -102,11 +101,11 @@
           mouseClickPoints.push([x, y, z]);
           // Store the coordinates
           if (x >= 0.0 && y >= 0.0){ // first quadrant
-              mouseClickPoints.push([1.0, 1.0, 0.0, 1.0]); // yellow
+              mouseClickColors.push([1.0, 1.0, 0.0, 1.0]); // yellow
           } else if (x < 0.0 && y < 0.0) { // third quadrant
-              mouseClickPoints.push([0.0, 1.0, 0.0, 1.0]); // green
+              mouseClickColors.push([0.0, 1.0, 0.0, 1.0]); // green
           } else { // others
-              mouseClickPoints.push([1.0, 0.0, 1.0, 1.0]); // purple
+              mouseClickColors.push([1.0, 0.0, 1.0, 1.0]); // purple
           }
           // Clear <canvas>
           gl.clear(gl.COLOR_BUFFER_BIT);
@@ -118,7 +117,7 @@
             // Pass the position of a point to aPosition variable:
             gl.vertexAttrib3f(vertexPositionAttribute, xy[0], xy[1], xy[2]);
             // Pass the color of a point to uFrafColor variable:
-            gl.uniform4f(fragColorAttribute, rgba[0], rgba[1], rgba[2], rgba[3])
+            gl.uniform4f(fragColorAttribute, rgba[0], rgba[1], rgba[2], rgba[3]);
             // Draw:
             gl.drawArrays(gl.POINTS, 0, 1);
           }
