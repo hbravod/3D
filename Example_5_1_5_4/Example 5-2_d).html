@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>Example 5-3</title>
+    <title>Example 5-2</title>
     <style>
         body {
             background-color: grey;
@@ -36,19 +36,14 @@
             glProgram = null,
             fragmentShader = null,
             vertexShader = null;
-
         var vertexPositionAttribute = null,
-            vertexColorAttribute = null;
-
-        var cubeAttrBuffer = null,
-            cubeElemBuffer = null;
-
+            trianglesVerticeBuffer = null;
+        var vertexColorAttribute = null,
+            trianglesColorBuffer = null;
 	    var mvMatrix = mat4.create();
         var mvMatrixUniform = null;
-
         var pMatrix = mat4.create();
         var pMatrixUniform = null;
-
         var angle = 0.0;
 
         function initWebGL() {
@@ -73,12 +68,9 @@
         }
 
         function setupWebGL() {
-            gl.enable(gl.DEPTH_TEST); // profundidad.
-            gl.depthFunc(gl.LEQUAL);
-
             //set the clear color to a shade of green
             gl.clearColor(1.0, 1.0, 1.0, 1.0);
-
+            gl.clear(gl.COLOR_BUFFER_BIT);
 
 	        gl.viewport(0, 0, canvas.width, canvas.height);
         }
@@ -115,93 +107,46 @@
         }
 
         function setupBuffers() {
-            var cube_attributes =[
-                  -1,-1,-1,     1,1,0, // vértices  color  índice (1)
-                   1,-1,-1,     1,1,0,
-                   1, 1,-1,     1,1,0,
-                  -1, 1,-1,     1,1,0,
-
-                  -1,-1, 1,     0,0,1, // vértices  color  índice (4)
-                   1,-1, 1,     0,0,1,
-                   1, 1, 1,     0,0,1,
-                  -1, 1, 1,     0,0,1,
-
-                  -1,-1,-1,     0,1,1, // vértices  color  índice (8)
-                  -1, 1,-1,     0,1,1,
-                  -1, 1, 1,     0,1,1,
-                  -1,-1, 1,     0,1,1,
-
-                   1,-1,-1,     1,0,0, // vértices  color  índice (12)
-                   1, 1,-1,     1,0,0,
-                   1, 1, 1,     1,0,0,
-                   1,-1, 1,     1,0,0,
-
-                  -1,-1,-1,     1,0,1, // vértices  color  índice (16)
-                  -1,-1, 1,     1,0,1,
-                   1,-1, 1,     1,0,1,
-                   1,-1,-1,     1,0,1,
-
-                  -1, 1,-1,     0,1,0, // vértices  color  índice (20)
-                  -1, 1, 1,     0,1,0,
-                   1, 1, 1,     0,1,0,
-                   1, 1,-1,     0,1,0
-
+            var triangleVertices = [
+                        //triangle Vertices
+                        -0.6, -0.5, 0.0,
+                         0.6, -0.5, 0.0,
+                         0.0,  0.5, 0.0,
             ];
-            cubeAttrBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, cubeAttrBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube_attributes), gl.STATIC_DRAW);
+            trianglesVerticeBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesVerticeBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
 
-            vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
-            gl.enableVertexAttribArray(vertexPositionAttribute);
-
-            vertexColorAttribute = gl.getAttribLocation(glProgram, "aVertexColor");
-            gl.enableVertexAttribArray(vertexColorAttribute);
-
-	        var cube_faces = [
-                   0,1,2,
-                   0,2,3,
-
-                   4,5,6,
-                   4,6,7,
-
-                   8,9,10,
-                   8,10,11,
-
-                   12,13,14,
-                   12,14,15,
-
-                   16,17,18,
-                   16,18,19,
-
-                   20,21,22,
-                   20,22,23
-
+	        var triangleColors = [
+                        // triangle Colors
+                        1.0, 0.0, 0.0,
+                        0.0, 1.0, 0.0,
+                        0.0, 0.0, 1.0,
             ];
-            cubeElemBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeElemBuffer);
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cube_faces), gl.STATIC_DRAW);
-
-            vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
-            gl.enableVertexAttribArray(vertexPositionAttribute);
-
-            vertexColorAttribute = gl.getAttribLocation(glProgram, "aVertexColor");
-            gl.enableVertexAttribArray(vertexColorAttribute);
+            trianglesColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleColors), gl.STATIC_DRAW);
         }
 
         function drawScene() {
-            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
+            gl.enableVertexAttribArray(vertexPositionAttribute);
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesVerticeBuffer);
+            gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, cubeAttrBuffer);
-            gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 4*(3+3), 0);
-            gl.vertexAttribPointer(vertexColorAttribute, 3, gl.FLOAT, false, 4*(3+3), 3*4); // a partir del byte 12 tenemos el color.
+            vertexColorAttribute = gl.getAttribLocation(glProgram, "aVertexColor");
+            gl.enableVertexAttribArray(vertexColorAttribute);
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer);
+            gl.vertexAttribPointer(vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
 
-            a = 1.0;
+            a = 0.8;
+            b = 0.2;
 
             for (i=0; i<3; i++){
-              setUniforms(a);
-              a += 5.0;
-              gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeElemBuffer);
-              gl.drawElements(gl.TRIANGLES, 6*2*3, gl.UNSIGNED_SHORT, 0);
+                setUniforms(a,b);
+                a += 0.2;
+                b += 0.9;
+                gl.drawArrays(gl.TRIANGLES, 0, 3);
             }
         }
 
@@ -214,12 +159,15 @@
             gl.uniformMatrix4fv(pMatrixUniform, false, pMatrix);
         }
 
-        function setUniforms(a) {
+        function setUniforms(a,b) {
+          // a) va de -1 a 10 porque el 0 está en la pantalla.
+            var newPos = -6.0 + 5.0*Math.sin(angle);
+             var newPosX = -6.0 + 5.0*Math.cos(angle);
+             var newPosY = -6.0 + 5.0*Math.cos(angle);
+
             angle += 0.01;
-            var newPos = (-0.5*a)+2.5;
 	        mat4.identity(mvMatrix);
-            mat4.translate(mvMatrix, [newPos, 0.0, -6.0]);
-            mat4.rotate(mvMatrix, angle, [0.0, 1.0, 0.5]);
+            mat4.translate(mvMatrix, [newPosX, 0.0, a*newPos ]);
             gl.uniformMatrix4fv(mvMatrixUniform, false, mvMatrix);
         }
     </script>
