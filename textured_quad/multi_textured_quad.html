@@ -30,7 +30,7 @@
         void main(void) { // tantas texturas como quieras.
             vec4 color0 = texture2D(uSampler0, vTexCoord);
             vec4 color1 = texture2D(uSampler1, vTexCoord);
-            gl_FragColor = color0 * color1; // operación: forma de combinar las imaǵenes.
+            gl_FragColor = color0 / color1; // operación: forma de combinar las imaǵenes.
         }
     </script>
     <script>
@@ -131,7 +131,7 @@
 
             vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
             gl.enableVertexAttribArray(vertexPositionAttribute);
-            gl.vertexAttribPointer(vertexPositionAttribute, 2, gl.FLOAT, false, FSIZE*4, 0);
+            gl.vertexAttribPointer(vertexPositionAttribute, 2, gl.FLOAT, false, FSIZE*4, 0); // FSIZE número de bytes para cada elemento.
 
             vertexTextureAttribute = gl.getAttribLocation(glProgram, "aTexCoord");
             gl.enableVertexAttribArray(vertexTextureAttribute);
@@ -169,7 +169,7 @@
 
             // Tell the browser to load the images
             image0.src = 'http://localhost:8000/sky.jpg';
-            image1.src = 'http://localhost:8000/circle.gif';
+            image1.src = 'http://localhost:8000/moon.gif';
             image0.setAttribute('crossorigin', 'anonymous');
             image1.setAttribute('crossorigin', 'anonymous');
             return true;

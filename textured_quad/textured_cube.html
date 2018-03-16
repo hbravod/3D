@@ -29,8 +29,15 @@
         precision mediump float;
         uniform sampler2D uSampler;
         varying vec2 vTexCoord;
+        uniform sampler2D uSampler0;
+        uniform sampler2D uSampler1;
+
         void main(void) {
-            gl_FragColor = texture2D(uSampler, vTexCoord);
+            // gl_FragColor = texture2D(uSampler, vTexCoord);
+            vec4 color0 = texture2D(uSampler0, vTexCoord);
+            vec4 color1 = texture2D(uSampler1, vTexCoord);
+            gl_FragColor = color0 / color1;
+
         }
     </script>
     <script>
@@ -42,19 +49,22 @@
 
         var vertexPositionAttribute = null,
             vertexTexCoorAttribute = null;
-        var fragmentSamplerUniform = null;
+        var fragmentSamplerUniform0 = null;
+        var fragmentSamplerUniform1 = null;
+        var textureUnit0 = false,
+            textureUnit1 = false;
 
         var cubeAttrBuffer = null,
             cubeElemBuffer = null;
 
 	    var mvMatrix = mat4.create();
         var mvMatrixUniform = null;
-        
+
         var pMatrix = mat4.create();
         var pMatrixUniform = null;
-        
-        var angle = 0.0;        
-       
+
+        var angle = 0.0;
+
         function initWebGL() {
             canvas = document.getElementById("my-canvas");
             try {
@@ -70,7 +80,7 @@
                 if (!initTextures()) {
                     console.log('Failed to intialize the texture.');
                     return;
-                }    
+                }
                 (function animLoop() {
                     setupWebGL();
                     drawScene();
@@ -80,18 +90,18 @@
                 alert("Error: Your browser does not appear to support WebGL.");
             }
         }
-        
+
         function setupWebGL() {
             gl.enable(gl.DEPTH_TEST);
             gl.depthFunc(gl.LEQUAL);
-            
+
             //set the clear color to a shade of green
             gl.clearColor(1.0, 1.0, 1.0, 1.0);
-            
+
 
 	        gl.viewport(0, 0, canvas.width, canvas.height);
         }
-        
+
         function initShaders() {
             //get shader source
             var fs_source = document.getElementById('shader-fs').innerHTML,
@@ -111,7 +121,7 @@
             //use program
             gl.useProgram(glProgram);
         }
-        
+
         function makeShader(src, type) {
             //compile the vertex shader
             var shader = gl.createShader(type);
@@ -122,12 +132,12 @@
             }
             return shader;
         }
-        
+
         function setupBuffers() {
             var cubeAttributes =new Float32Array([
                 // X, Y, Z      Texture Coordinates
-                  -1,-1,-1,     0.0, 0.0,
-                   1,-1,-1,     1.0, 0.0,
+                  -1,-1,-1,     0.0, 0.0,  // 0.1.2
+                   1,-1,-1,     1.0, 1.0,  // 0.2.3
                    1, 1,-1,     1.0, 1.0,
                   -1, 1,-1,     0.0, 1.0,
 
@@ -157,13 +167,13 @@
                    1, 1,-1,     1.0, 0.0,
 
             ]);
-                        
+
             cubeAttrBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeAttrBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, cubeAttributes, gl.STATIC_DRAW);
-            
+
             var FSIZE = cubeAttributes.BYTES_PER_ELEMENT;
-            
+
             vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
             gl.enableVertexAttribArray(vertexPositionAttribute);
             gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, FSIZE*5, 0);
@@ -196,9 +206,11 @@
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeElemBuffer);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeFaces), gl.STATIC_DRAW);
         }
-        
+
         function initTextures() {
             var texture = gl.createTexture();   // Create a texture object
+            fragmentSamplerUniform0 = gl.getUniformLocation(glProgram, 'uSampler0');
+            fragmentSamplerUniform1 = gl.getUniformLocation(glProgram, 'uSampler1');
             if (!texture) {
                 console.log('Failed to create the texture object');
                 return false;
@@ -219,6 +231,7 @@
             image.onload = function(){loadTexture(gl, texture, fragmentSamplerUniform, image);};
             // Tell the browser to load an image
             image.src = 'http://localhost:8000/brick001.jpg';
+            image.src1 = 'http://localhost:8000/moon.gif';
             image.setAttribute('crossorigin', 'anonymous');
             return true;
         }
@@ -229,20 +242,20 @@
           gl.activeTexture(gl.TEXTURE0);
           // Bind the texture object to the target
           gl.bindTexture(gl.TEXTURE_2D, texture);
-        
+
           // Set the texture parameters
           gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            
+
           // Set the texture image
           gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
           // Set the texture unit 0 to the sampler
           gl.uniform1i(fragmentSamplerUniform, 0);
         }
-        
+
         function drawScene(n) {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            
+
             setUniforms();
             gl.drawElements(gl.TRIANGLES, 6*2*3, gl.UNSIGNED_SHORT, 0);
         }

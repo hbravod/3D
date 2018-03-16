@@ -19,9 +19,11 @@
 
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
+        uniform float uColorScale;
         void main(void) {
              gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-	         vColor = vec4(aVertexColor, 1.0);
+	         // vColor = vec4(aVertexColor, 1.0);
+           vColor = vec4(aVertexColor + vec3(uColorScale, uColorScale, 1.0), 1.0);
         }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">
@@ -198,6 +200,8 @@
 
         function getUniforms() {
             mvMatrixUniform = gl.getUniformLocation(glProgram, "uMVMatrix");
+            colorScaleUniform = gl.getUniformLocation(glProgram, "uColorScale");
+            colorScaleUniform2 = gl.getUniformLocation(glProgram, "uColorScale2");
 
             pMatrixUniform = gl.getUniformLocation(glProgram, "uPMatrix");
             var ratio = canvas.width/canvas.height;
@@ -207,11 +211,16 @@
 
         function setUniforms() {
             angle += 0.01;
+            var newIntensity = 0.5*Math.cos(angle);
+            var newIntensity2 = 0.5*Math.sin(angle);
 
 	        mat4.identity(mvMatrix);
             mat4.translate(mvMatrix, [0.0, 0.0, -6.0]);
             mat4.rotate(mvMatrix, angle, [0.0, 1.0, 0.5]);
             gl.uniformMatrix4fv(mvMatrixUniform, false, mvMatrix);
+
+            gl.uniform1f(colorScaleUniform, newIntensity);
+            gl.uniform1f(colorScaleUniform2, newIntensity2);
         }
     </script>
 </head>
