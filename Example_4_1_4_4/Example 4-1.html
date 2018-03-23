@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>Example 3-2</title>
+    <title>Example 4-1</title>
     <style>
         body {
             background-color: grey;
@@ -11,15 +11,16 @@
             background-color: white;
         }
     </style>
+    <script src="gl-matrix-min.js"></script>
     <script id="shader-vs" type="x-shader/x-vertex">
         attribute vec3 aVertexPosition;
 	    attribute vec3 aVertexColor;
 	    varying highp vec4 vColor;
 
-        uniform float uColorScale;
+        uniform mat4 uMVMatrix;
         void main(void) {
-           gl_Position = vec4(aVertexPosition, 1.0);
-	         vColor = vec4(aVertexColor + vec3(uColorScale, uColorScale, 1.0), 1.0);
+             gl_Position = uMVMatrix * vec4(aVertexPosition, 1.0);
+	         vColor = vec4(aVertexColor, 1.0);
         }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">
@@ -38,9 +39,9 @@
             trianglesVerticeBuffer = null;
         var vertexColorAttribute = null,
             trianglesColorBuffer = null;
+        var mvMatrixUniform = null; // objeto que guarda la posición.
+	    var mvMatrix = mat4.create();
         var angle = 0.0;
-        var colorScaleUniform = null;
-
 
         function initWebGL() {
             canvas = document.getElementById("my-canvas");
@@ -56,7 +57,7 @@
                 (function animLoop() {
                     setupWebGL();
                     drawScene();
-                    requestAnimationFrame(animLoop, canvas);
+                    requestAnimationFrame(animLoop, canvas); // repintar los objetos.
                 })();
             } else {
                 alert("Error: Your browser does not appear to support WebGL.");
@@ -67,12 +68,14 @@
             //set the clear color to a shade of green
             gl.clearColor(1.0, 1.0, 1.0, 1.0);
             gl.clear(gl.COLOR_BUFFER_BIT);
+
+	        gl.viewport(0, 0, canvas.width, canvas.height);
         }
 
         function initShaders() {
             //get shader source
             var fs_source = document.getElementById('shader-fs').innerHTML,
-             vs_source = document.getElementById('shader-vs').innerHTML;
+                vs_source = document.getElementById('shader-vs').innerHTML;
             //compile shaders
             vertexShader = makeShader(vs_source, gl.VERTEX_SHADER);
             fragmentShader = makeShader(fs_source, gl.FRAGMENT_SHADER);
@@ -121,6 +124,7 @@
             gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleColors), gl.STATIC_DRAW);
         }
+
         function drawScene() {
             vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
             gl.enableVertexAttribArray(vertexPositionAttribute);
@@ -132,19 +136,23 @@
             gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer);
             gl.vertexAttribPointer(vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
 
-            setUniforms();
+            setUniforms(); // aplicar la transformación.
             gl.drawArrays(gl.TRIANGLES, 0, 3);
         }
 
-	    function getUniforms() {
-            colorScaleUniform = gl.getUniformLocation(glProgram, "uColorScale");
+        function getUniforms() {
+            mvMatrixUniform = gl.getUniformLocation(glProgram, "uMVMatrix");
         }
 
         function setUniforms() {
-            var newIntensity = 0.5*Math.cos(angle);
-            angle += 0.01;
+            var newPos = 0.5*Math.sin(angle); // movimiento en el eje de las x.
+            var newPosY = 0.5*Math.cos(angle);
 
-            gl.uniform1f(colorScaleUniform, newIntensity);
+            angle += 0.1;
+            mat4.identity(mvMatrix); // crea matriz identidad (defecto).
+            mat4.translate(mvMatrix, [newPos , newPosY, 0.0]); // matriz de transformación con nueva posición en la x (nrePos).
+            // convierte mvMatrix en la matriz de traslación.
+            gl.uniformMatrix4fv(mvMatrixUniform, false, mvMatrix); // la copiamos a la variable uniform.
         }
     </script>
 </head>
