@@ -19,6 +19,8 @@ var renderer, scene, camera, pointLight;
 
 var sphere;
 
+var cubePlayer, cubeCPU, plane;
+
 const FIELD_WIDTH = 400,
       FIELD_HEIGHT = 200;
 const
@@ -38,6 +40,8 @@ var   playerPaddleDirY = 0,
 var   playerPaddle,
       cpuPaddle;
 
+var ballDirX = 1, ballDirY = 1, ballSpeed = 2;
+
 // GAME FUNCTIONS
 
 function setup()
@@ -45,7 +49,7 @@ function setup()
     createScene();
       addSphereMesh();
       addPlaneMesh();
-      addCubeMeshUser();
+      addCubeMeshPlayer();
       addCubeMeshCPU();
       addLight();
       //draw();
@@ -92,7 +96,7 @@ function addSphereMesh(){
   		sphere = new THREE.Mesh(geometry, material);
 
       // Move the Sphere back in Z so we can see it
-      sphere.position.z = -200;
+      sphere.position.z = -300;
 
       // Finally, add the sphere to the scene
       scene.add(sphere);
@@ -104,21 +108,21 @@ function addPlaneMesh(){
       {
         color: '#FFF8DC'
       });
-  var plane = new THREE.Mesh( geometry, material );
+  plane = new THREE.Mesh( geometry, material );
   scene.add( plane );
   plane.position.z = -300;
 }
 
-function addCubeMeshUser(){
+function addCubeMeshPlayer(){
   var geometry = new THREE.BoxGeometry(PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_DEPTH);
   var material = new THREE.MeshLambertMaterial(
       {
         color: '#2E9AFE'
       });
-  var cube = new THREE.Mesh( geometry, material );
-  scene.add( cube );
-  cube.position.z = -100;
-  cube.position.x = -50;
+  cubePlayer = new THREE.Mesh( geometry, material );
+  scene.add( cubePlayer );
+  cubePlayer.position.z = -300;
+  cubePlayer.position.x = -190;
 }
 
 function addCubeMeshCPU(){
@@ -127,10 +131,10 @@ function addCubeMeshCPU(){
       {
         color: '#FF0000'
       });
-  var cube = new THREE.Mesh( geometry, material );
-  scene.add( cube );
-  cube.position.z = -100;
-  cube.position.x = 50;
+  cubeCPU = new THREE.Mesh( geometry, material );
+  scene.add( cubeCPU );
+  cubeCPU.position.z = -300;
+  cubeCPU.position.x = 190;
 }
 
 function addLight(){
@@ -156,8 +160,31 @@ function draw()
 
   // Schedule the next frame
   requestAnimationFrame(draw);
+  sphere.position.x += ballSpeed*ballDirX;
+  if (sphere.position.x == PLANE_WIDTH/2 || sphere.position.x == -PLANE_WIDTH/2){
+    ballDirX = -ballDirX;
+  }
+  sphere.position.y += ballSpeed*ballDirY;
+  if (sphere.position.y == PLANE_HEIGHT/2 || sphere.position.y == -PLANE_HEIGHT/2){
+    ballDirY = -ballDirY;
+  }
+  sphere.rotation.x += 0.1;
+  sphere.rotation.y += 0.1;
 
-  //sphere.rotation.x += 0.1;
-  //sphere.rotation.y += 0.1;
+  if (Key.isDown(Key.A))
+  {
+    if (cubePlayer.position.y <= ((PLANE_HEIGHT/2) - PADDLE_HEIGHT)){
+      cubePlayer.position.y += 1;
+    }
+    if (sphere.position.x == cubePlayer.position.x &&){
+      ballDirX = -ballDirX;
+    }
+  }
+  if (Key.isDown(Key.D))
+  {
+    if (cubePlayer.position.y >= ((-PLANE_HEIGHT/2) + PADDLE_HEIGHT)){
+      cubePlayer.position.y -= 1;
+    }
 
+  }
 }
