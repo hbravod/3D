@@ -14,7 +14,7 @@ const ASPECT = WIDTH / HEIGHT;
 const NEAR = 0.1;
 const FAR = 10000;
 
-var score1 = 0, score2 = 0, maxScore = 5;
+var score1 = 0, score2 = 0, maxScore = 3;
 
 // set opponent reaction rate (0-easiest, 1-hardest)
 var difficulty = 0.2;
@@ -43,7 +43,7 @@ var   playerPaddleDirY = 0,
 var   playerPaddle,
       cpuPaddle;
 
-var ballDirX = 1, ballDirY = 1, ballSpeed = 2;
+var ballDirX = 1, ballDirY = 1, ballSpeed = 2, constballSpeed = ballSpeed;
 
 // GAME FUNCTIONS
 
@@ -55,8 +55,9 @@ function setup()
       addPaddleMeshPlayer();
       addPaddleMeshCPU();
       addLight();
-      score();
+      //score();
       //rebound();
+      //paddleCPUmov();
       requestAnimationFrame(draw); // redibujar la esfera todo el rato.
 }
 
@@ -140,7 +141,6 @@ function addPaddleMeshCPU(){
   paddleCPU.position.z = -300;
   paddleCPU.position.x = 190;
   paddleCPU.position.y = 0;
-  cpuPaddleDirY = (sphere.position.y - paddleCPU.position.y) * difficulty;
 }
 
 function addLight(){
@@ -159,27 +159,57 @@ function addLight(){
 }
 
 function score(){
-  if (sphere.position.x == PLANE_WIDTH/2){
+  if (sphere.position.x >= PLANE_WIDTH/2){
     score1 += 1;
+    console.log(score1);
+    ballSpeed = ballSpeed
     document.getElementById("scores").innerHTML = (score1) + "-" + (score2 + 0);
   }
-  if (sphere.position.x == -PLANE_WIDTH/2){
+  if (sphere.position.x <= -PLANE_WIDTH/2){
     score2 += 1;
+    console.log(score2);
+    ballSpeed = ballSpeed
     document.getElementById("scores").innerHTML = (score1 + 0) + "-" + (score2);
   }
-  if ((score1 || score2) == maxScore){
-    alert("Has ganado! Refresca la pagina para volver a intentarlo.");
+  if (score1 == maxScore){
+    window.alert("Has ganado, maquina!");
+    score1 = 0;
+    score2 = 0;
+    document.getElementById("scores").innerHTML = (score1) + "-" + (score2);
+  }
+  else if (score2 == maxScore) {
+    window.alert("Has perdido, puto loser!");
+    score1 = 0;
+    score2 = 0;
+    document.getElementById("scores").innerHTML = (score1) + "-" + (score2);
   }
   document.getElementById("winnerBoard").innerHTML = "First to " + maxScore + " wins!"
 }
 
 function rebound(){
-  if (paddleCPU.position.x == sphere.position.x && ((sphere.position.y <= paddleCPU.position.y + PADDLE_HEIGHT/2) || (sphere.position.y >= paddleCPU.position.y - PADDLE_HEIGHT/2))){
-    ballDirX = -ballDirX;
+  if (sphere.position.x >= paddleCPU.position.x){
+     if ((sphere.position.y <= (paddleCPU.position.y + PADDLE_HEIGHT/2)) && (sphere.position.y >= (paddleCPU.position.y - PADDLE_HEIGHT/2))){
+       console.log("rebote")
+       ballDirX = -ballDirX;
+       ballSpeed = ballSpeed + 0.1;
+       console.log(ballSpeed);
+    }
   }
-  if (paddlePlayer.position.x == sphere.position.x && ((sphere.position.y <= paddlePlayer.position.y + PADDLE_HEIGHT/2) || (sphere.position.y >= paddlePlayer.position.y - PADDLE_HEIGHT/2))){
-    ballDirX = -ballDirX;
+  if (sphere.position.x <= paddlePlayer.position.x){
+     if ((sphere.position.y <= (paddlePlayer.position.y + PADDLE_HEIGHT/2)) && (sphere.position.y >= (paddlePlayer.position.y - PADDLE_HEIGHT/2))){
+       console.log("rebote")
+       ballDirX = -ballDirX;
+       ballSpeed = ballSpeed + 0.1;
+       console.log(ballSpeed);
+    }
   }
+}
+
+function paddleCPUmov(){
+  // set opponent reaction rate (0-easiest, 1-hardest)
+  var difficulty = 0.2;
+  cpuPaddleDirY = (sphere.position.y - paddleCPU.position.y) * difficulty;
+  paddleCPU.position.y += cpuPaddleDirY;
 }
 
 function draw(){
@@ -188,17 +218,22 @@ function draw(){
 
   // Schedule the next frame
   requestAnimationFrame(draw);
+  rebound();
 
+  // Movimiento de la pelota
   sphere.position.x += ballSpeed * ballDirX;
-  if (sphere.position.x == PLANE_WIDTH/2 || sphere.position.x == -PLANE_WIDTH/2){
+  if (sphere.position.x >= PLANE_WIDTH/2 || sphere.position.x <= -PLANE_WIDTH/2){
     score();
-    sphere.position.x = ballSpeed * ballDirX;
+    sphere.position.x = 0;
+    ballDirX = -ballDirX;
   }
   sphere.position.y += ballSpeed * ballDirY;
-  if (sphere.position.y == PLANE_HEIGHT/2 || sphere.position.y == -PLANE_HEIGHT/2){
+  if (sphere.position.y >= PLANE_HEIGHT/2 || sphere.position.y <= -PLANE_HEIGHT/2){
     ballDirY = -ballDirY;
-    score();
+    sphere.position.y += ballSpeed * ballDirY;
+    ballSpeed = ballSpeed + 0.1;
   }
+  // Movimiento pala del jugador
   if (Key.isDown(Key.A)){
     if (paddlePlayer.position.y <= ((PLANE_HEIGHT/2) - PADDLE_HEIGHT/2)){
       paddlePlayer.position.y += 1 * paddleSpeed;
@@ -209,4 +244,12 @@ function draw(){
       paddlePlayer.position.y -= 1 * paddleSpeed;
     }
   }
+
+  paddleCPUmov();
+
+  // Incremento velocidad pelota en rebote
+  if (ballSpeed >= constballSpeed * 2){
+    ballSpeed = constballSpeed * 2;
+  }
+
 }
