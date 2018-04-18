@@ -101,7 +101,7 @@ function addSphereMesh(){
   		sphere = new THREE.Mesh(geometry, material);
 
       // Move the Sphere back in Z so we can see it
-      sphere.position.z = -300;
+      sphere.position.z = -296;
 
       // Finally, add the sphere to the scene
       scene.add(sphere);
@@ -161,14 +161,16 @@ function addLight(){
 function score(){
   if (sphere.position.x >= PLANE_WIDTH/2){
     score1 += 1;
-    console.log(score1);
-    ballSpeed = ballSpeed
+    console.log("gol");
+    ballSpeed = constballSpeed
+    console.log(constballSpeed);
     document.getElementById("scores").innerHTML = (score1) + "-" + (score2 + 0);
   }
   if (sphere.position.x <= -PLANE_WIDTH/2){
     score2 += 1;
-    console.log(score2);
-    ballSpeed = ballSpeed
+    console.log("gol");
+    ballSpeed = constballSpeed
+    console.log(constballSpeed);
     document.getElementById("scores").innerHTML = (score1 + 0) + "-" + (score2);
   }
   if (score1 == maxScore){
@@ -214,6 +216,13 @@ function paddleCPUmov(){
 
 function draw(){
   // Draw!
+  //renderer.render(scene, camera);
+
+  camera.position.x = paddlePlayer.position.x - 150;
+  camera.position.z = paddlePlayer.position.z + 50;
+  camera.rotation.y = -3.141592/2;
+  camera.rotation.z = -3.141592/2;;
+  camera.rotation.x = 0;
   renderer.render(scene, camera);
 
   // Schedule the next frame
