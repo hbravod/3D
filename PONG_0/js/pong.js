@@ -36,6 +36,14 @@ const PADDLE_WIDTH = 10,
       PADDLE_DEPTH = 10,
       PADDLE_QUALITY = 1;
 
+const COLUM_RIGHT_WIDTH =  20,
+      COLUM_RIGHT_HEIGHT =  20,
+      COLUM_RIGHT_DEPTH = 50;
+
+const COLUM_LEFT_WIDTH =  20,
+      COLUM_LEFT_HEIGHT =  20,
+      COLUM_LEFT_DEPTH = 50;
+
 var   playerPaddleDirY = 0,
       cpuPaddleDirY = 0,
       paddleSpeed = 3;
@@ -54,6 +62,8 @@ function setup()
       addPlaneMesh();
       addPaddleMeshPlayer();
       addPaddleMeshCPU();
+      addColumMeshRight();
+      addColumMeshLeft();
       addLight();
       //score();
       //rebound();
@@ -94,7 +104,7 @@ function addSphereMesh(){
   var geometry = new THREE.SphereGeometry(RADIUS, SEGMENTS, RINGS);
   var material = new THREE.MeshLambertMaterial(
       {
-        color: '#00FF00'
+        color: '#C5FF00'
       });
 
       // Create a new mesh with sphere geometry
@@ -143,6 +153,56 @@ function addPaddleMeshCPU(){
   paddleCPU.position.y = 0;
 }
 
+function addColumMeshRight(){
+  var geometry = new THREE.BoxGeometry(COLUM_RIGHT_WIDTH, COLUM_RIGHT_HEIGHT, COLUM_RIGHT_DEPTH);
+  var material = new THREE.MeshLambertMaterial(
+      {
+        color: '#26D190'
+      });
+  columRight1 = new THREE.Mesh( geometry, material );
+  scene.add( columRight1 );
+  columRight1.position.z = -300;
+  columRight1.position.y = -120;
+  columRight1.position.x = -120;
+
+  columRight2 = new THREE.Mesh( geometry, material );
+  scene.add( columRight2 );
+  columRight2.position.z = -300;
+  columRight2.position.y = -120;
+  columRight2.position.x = 0;
+
+  columRight3 = new THREE.Mesh( geometry, material );
+  scene.add( columRight3 );
+  columRight3.position.z = -300;
+  columRight3.position.y = -120;
+  columRight3.position.x = 120;
+}
+
+function addColumMeshLeft(){
+  var geometry = new THREE.BoxGeometry(COLUM_LEFT_WIDTH, COLUM_LEFT_HEIGHT, COLUM_LEFT_DEPTH);
+  var material = new THREE.MeshLambertMaterial(
+      {
+        color: '#26D190'
+      });
+  columLEFT1 = new THREE.Mesh( geometry, material );
+  scene.add( columLEFT1 );
+  columLEFT1.position.z = -300;
+  columLEFT1.position.y = 120;
+  columLEFT1.position.x = 120;
+
+  columLEFT2 = new THREE.Mesh( geometry, material );
+  scene.add( columLEFT2 );
+  columLEFT2.position.z = -300;
+  columLEFT2.position.y = 120;
+  columLEFT2.position.x = 0;
+
+  columLEFT3 = new THREE.Mesh( geometry, material );
+  scene.add( columLEFT3 );
+  columLEFT3.position.z = -300;
+  columLEFT3.position.y = 120;
+  columLEFT3.position.x = -120;
+}
+
 function addLight(){
 
   // Create a point light
@@ -180,7 +240,7 @@ function score(){
     document.getElementById("scores").innerHTML = (score1) + "-" + (score2);
   }
   else if (score2 == maxScore) {
-    window.alert("Has perdido, puto loser!");
+    window.alert("Has perdido! Refresca para volver a intentarlo");
     score1 = 0;
     score2 = 0;
     document.getElementById("scores").innerHTML = (score1) + "-" + (score2);
@@ -214,21 +274,21 @@ function paddleCPUmov(){
   paddleCPU.position.y += cpuPaddleDirY;
 }
 
-function draw(){
-  // Draw!
-  //renderer.render(scene, camera);
+function paddlePlayerMov(){
+  // Movimiento pala del jugador
+  if (Key.isDown(Key.A)){
+    if (paddlePlayer.position.y <= ((PLANE_HEIGHT/2) - PADDLE_HEIGHT/2)){
+      paddlePlayer.position.y += 1 * paddleSpeed;
+    }
+  }
+  if (Key.isDown(Key.D)){
+    if (paddlePlayer.position.y >= ((-PLANE_HEIGHT/2) + PADDLE_HEIGHT/2)){
+      paddlePlayer.position.y -= 1 * paddleSpeed;
+    }
+ }
+}
 
-  camera.position.x = paddlePlayer.position.x - 150;
-  camera.position.z = paddlePlayer.position.z + 50;
-  camera.rotation.y = -3.141592/2;
-  camera.rotation.z = -3.141592/2;;
-  camera.rotation.x = 0;
-  renderer.render(scene, camera);
-
-  // Schedule the next frame
-  requestAnimationFrame(draw);
-  rebound();
-
+function sphereMov(){
   // Movimiento de la pelota
   sphere.position.x += ballSpeed * ballDirX;
   if (sphere.position.x >= PLANE_WIDTH/2 || sphere.position.x <= -PLANE_WIDTH/2){
@@ -242,23 +302,41 @@ function draw(){
     sphere.position.y += ballSpeed * ballDirY;
     ballSpeed = ballSpeed + 0.1;
   }
-  // Movimiento pala del jugador
-  if (Key.isDown(Key.A)){
-    if (paddlePlayer.position.y <= ((PLANE_HEIGHT/2) - PADDLE_HEIGHT/2)){
-      paddlePlayer.position.y += 1 * paddleSpeed;
+}
+
+  function paddlePlayerCamera(){
+    camera.position.x = paddlePlayer.position.x - 150;
+    camera.position.z = paddlePlayer.position.z + 50;
+    camera.rotation.y = -Math.PI/2;
+    camera.rotation.z = -Math.PI/2;;
+    camera.rotation.x = 0;
+    renderer.render(scene, camera);
+  }
+
+  function sphereSpeed(){
+    // Incremento velocidad pelota en rebote
+    if (ballSpeed >= constballSpeed * 2){
+      ballSpeed = constballSpeed * 2;
     }
   }
-  if (Key.isDown(Key.D)){
-    if (paddlePlayer.position.y >= ((-PLANE_HEIGHT/2) + PADDLE_HEIGHT/2)){
-      paddlePlayer.position.y -= 1 * paddleSpeed;
-    }
-  }
+
+function draw(){
+  // Draw!
+  //renderer.render(scene, camera);
+
+  paddlePlayerCamera();
+
+  // Schedule the next frame
+  requestAnimationFrame(draw);
+
+  rebound();
+
+  sphereMov();
+
+  paddlePlayerMov();
 
   paddleCPUmov();
 
-  // Incremento velocidad pelota en rebote
-  if (ballSpeed >= constballSpeed * 2){
-    ballSpeed = constballSpeed * 2;
-  }
+  sphereSpeed();
 
 }
