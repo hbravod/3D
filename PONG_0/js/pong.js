@@ -22,7 +22,7 @@ var difficulty = 0.2;
 // Scene object variables
 var renderer, scene, camera, pointLight;
 
-var sphere, paddlePlayer, paddleCPU, plane;
+var sphere, paddlePlayer, paddleCPU, plane, newplane;
 
 const FIELD_WIDTH = 400,
       FIELD_HEIGHT = 200;
@@ -30,6 +30,9 @@ const
       PLANE_WIDTH = FIELD_WIDTH,
       PLANE_HEIGHT = FIELD_HEIGHT,
       PLANE_QUALITY = 10;
+
+const NEW_PLANE_WIDTH = 650,
+      NEW_PLANE_HEIGHT = 350;
 
 const PADDLE_WIDTH = 10,
       PADDLE_HEIGHT = 30,
@@ -60,6 +63,7 @@ function setup()
     createScene();
       addSphereMesh();
       addPlaneMesh();
+      addNewPlaneMesh();
       addPaddleMeshPlayer();
       addPaddleMeshCPU();
       addColumMeshRight();
@@ -100,32 +104,52 @@ function createScene(){
 }
 
 function addSphereMesh(){
+  var texture = new THREE.TextureLoader().load('./textures/basket.jpg');
+  //texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  //texture.repeat.set(5,5);
 
+  var material = new THREE.MeshBasicMaterial({map:texture});
   var geometry = new THREE.SphereGeometry(RADIUS, SEGMENTS, RINGS);
-  var material = new THREE.MeshLambertMaterial(
-      {
-        color: '#C5FF00'
-      });
+  //var material = new THREE.MeshBasicMaterial(
+    //{
+      //color: '#FF8F00'
+    //} );
 
-      // Create a new mesh with sphere geometry
-  		sphere = new THREE.Mesh(geometry, material);
+  // Create a new mesh with sphere geometry
+	sphere = new THREE.Mesh(geometry, material);
 
-      // Move the Sphere back in Z so we can see it
-      sphere.position.z = -296;
+  // Move the Sphere back in Z so we can see it
+  sphere.position.z = -296;
 
-      // Finally, add the sphere to the scene
-      scene.add(sphere);
+  // Finally, add the sphere to the scene
+  scene.add(sphere);
 }
 
 function addPlaneMesh(){
+  var texture = new THREE.TextureLoader().load('./textures/court.gif');
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  //texture.repeat.set(5,5);
+
   var geometry = new THREE.PlaneGeometry( PLANE_WIDTH, PLANE_HEIGHT);
-  var material = new THREE.MeshLambertMaterial(
-      {
-        color: '#FFF8DC'
-      });
+  var material = new THREE.MeshBasicMaterial({map:texture});
+
   plane = new THREE.Mesh( geometry, material );
   scene.add( plane );
   plane.position.z = -300;
+}
+
+function addNewPlaneMesh(){
+  var geometry = new THREE.PlaneGeometry(NEW_PLANE_WIDTH, NEW_PLANE_HEIGHT);
+  var material = new THREE.MeshLambertMaterial(
+    {
+      color: '#FFFFFF'
+    } );
+  newplane = new THREE.Mesh( geometry, material );
+  scene.add( newplane );
+  newplane.position.z = -301;
+
+  newplane.receiveShadow = true;
+  newplane.castShadow = true;
 }
 
 function addPaddleMeshPlayer(){
@@ -144,7 +168,7 @@ function addPaddleMeshCPU(){
   var geometry = new THREE.BoxGeometry(PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_DEPTH);
   var material = new THREE.MeshLambertMaterial(
       {
-        color: '#FF0000'
+        color: '#f7ff00'
       });
   paddleCPU = new THREE.Mesh( geometry, material );
   scene.add( paddleCPU );
@@ -165,17 +189,26 @@ function addColumMeshRight(){
   columRight1.position.y = -120;
   columRight1.position.x = -120;
 
+  columRight1.receiveShadow = true;
+  columRight1.castShadow = true;
+
   columRight2 = new THREE.Mesh( geometry, material );
   scene.add( columRight2 );
   columRight2.position.z = -300;
   columRight2.position.y = -120;
   columRight2.position.x = 0;
 
+  columRight2.receiveShadow = true;
+  columRight2.castShadow = true;
+
   columRight3 = new THREE.Mesh( geometry, material );
   scene.add( columRight3 );
   columRight3.position.z = -300;
   columRight3.position.y = -120;
   columRight3.position.x = 120;
+
+  columRight3.receiveShadow = true;
+  columRight3.castShadow = true;
 }
 
 function addColumMeshLeft(){
@@ -184,27 +217,35 @@ function addColumMeshLeft(){
       {
         color: '#26D190'
       });
-  columLEFT1 = new THREE.Mesh( geometry, material );
-  scene.add( columLEFT1 );
-  columLEFT1.position.z = -300;
-  columLEFT1.position.y = 120;
-  columLEFT1.position.x = 120;
+  columLeft1 = new THREE.Mesh( geometry, material );
+  scene.add( columLeft1 );
+  columLeft1.position.z = -300;
+  columLeft1.position.y = 120;
+  columLeft1.position.x = 120;
 
-  columLEFT2 = new THREE.Mesh( geometry, material );
-  scene.add( columLEFT2 );
-  columLEFT2.position.z = -300;
-  columLEFT2.position.y = 120;
-  columLEFT2.position.x = 0;
+  columLeft1.receiveShadow = true;
+  columLeft1.castShadow = true;
 
-  columLEFT3 = new THREE.Mesh( geometry, material );
-  scene.add( columLEFT3 );
-  columLEFT3.position.z = -300;
-  columLEFT3.position.y = 120;
-  columLEFT3.position.x = -120;
+  columLeft2 = new THREE.Mesh( geometry, material );
+  scene.add( columLeft2 );
+  columLeft2.position.z = -300;
+  columLeft2.position.y = 120;
+  columLeft2.position.x = 0;
+
+  columLeft2.receiveShadow = true;
+  columLeft2.castShadow = true;
+
+  columLeft3 = new THREE.Mesh( geometry, material );
+  scene.add( columLeft3 );
+  columLeft3.position.z = -300;
+  columLeft3.position.y = 120;
+  columLeft3.position.x = -120;
+
+  columLeft3.receiveShadow = true;
+  columLeft3.castShadow = true;
 }
 
 function addLight(){
-
   // Create a point light
   pointLight =
     new THREE.PointLight(0xFFFFFF);
@@ -216,6 +257,20 @@ function addLight(){
 
   // Add to the scene
   scene.add(pointLight);
+
+  // Create a spot light
+  spotLight = new THREE.SpotLight(0xF8D898);
+  spotLight.position.set(0, 0, 200);
+  spotLight.intensity = 0.5;
+  spotLight.castShadow = true;
+  scene.add(spotLight);
+
+  renderer.shadowMapEnabled = true;
+}
+
+function sphereShadow(){
+  spotLight.position.x = sphere.position.x;
+  spotLight.position.y = sphere.position.y;
 }
 
 function score(){
@@ -298,9 +353,11 @@ function sphereMov(){
   }
   sphere.position.y += ballSpeed * ballDirY;
   if (sphere.position.y >= PLANE_HEIGHT/2 || sphere.position.y <= -PLANE_HEIGHT/2){
+    console.log("rebote")
     ballDirY = -ballDirY;
     sphere.position.y += ballSpeed * ballDirY;
     ballSpeed = ballSpeed + 0.1;
+    console.log(ballSpeed);
   }
 }
 
@@ -328,6 +385,8 @@ function draw(){
 
   // Schedule the next frame
   requestAnimationFrame(draw);
+
+  sphereShadow();
 
   rebound();
 
