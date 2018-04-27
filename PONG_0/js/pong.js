@@ -41,11 +41,11 @@ const PADDLE_WIDTH = 10,
 
 const COLUM_RIGHT_WIDTH =  20,
       COLUM_RIGHT_HEIGHT =  20,
-      COLUM_RIGHT_DEPTH = 50;
+      COLUM_RIGHT_DEPTH = 70;
 
 const COLUM_LEFT_WIDTH =  20,
       COLUM_LEFT_HEIGHT =  20,
-      COLUM_LEFT_DEPTH = 50;
+      COLUM_LEFT_DEPTH = 70;
 
 var   playerPaddleDirY = 0,
       cpuPaddleDirY = 0,
@@ -162,6 +162,9 @@ function addPaddleMeshPlayer(){
   scene.add( paddlePlayer );
   paddlePlayer.position.z = -300;
   paddlePlayer.position.x = -190;
+
+  paddlePlayer.receiveShadow = true;
+  paddlePlayer.castShadow = true;
 }
 
 function addPaddleMeshCPU(){
@@ -175,13 +178,16 @@ function addPaddleMeshCPU(){
   paddleCPU.position.z = -300;
   paddleCPU.position.x = 190;
   paddleCPU.position.y = 0;
+
+  paddleCPU.receiveShadow = true;
+  paddleCPU.castShadow = true;
 }
 
 function addColumMeshRight(){
   var geometry = new THREE.BoxGeometry(COLUM_RIGHT_WIDTH, COLUM_RIGHT_HEIGHT, COLUM_RIGHT_DEPTH);
   var material = new THREE.MeshLambertMaterial(
       {
-        color: '#26D190'
+        color: '#9E00FF'
       });
   columRight1 = new THREE.Mesh( geometry, material );
   scene.add( columRight1 );
@@ -215,7 +221,7 @@ function addColumMeshLeft(){
   var geometry = new THREE.BoxGeometry(COLUM_LEFT_WIDTH, COLUM_LEFT_HEIGHT, COLUM_LEFT_DEPTH);
   var material = new THREE.MeshLambertMaterial(
       {
-        color: '#26D190'
+        color: '#9E00FF'
       });
   columLeft1 = new THREE.Mesh( geometry, material );
   scene.add( columLeft1 );
@@ -295,10 +301,11 @@ function score(){
     document.getElementById("scores").innerHTML = (score1) + "-" + (score2);
   }
   else if (score2 == maxScore) {
-    window.alert("Has perdido! Refresca para volver a intentarlo");
+    window.alert("Has perdido! Pulsa OK volver a intentarlo");
     score1 = 0;
     score2 = 0;
     document.getElementById("scores").innerHTML = (score1) + "-" + (score2);
+    location.reload() = true;
   }
   document.getElementById("winnerBoard").innerHTML = "First to " + maxScore + " wins!"
 }
